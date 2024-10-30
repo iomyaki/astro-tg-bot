@@ -42,7 +42,6 @@ zodiac_ru = {
 @r.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await message.answer(f"Приветствую! Выберите свой знак зодиака:", reply_markup=kb.choose_zodiac())
-    await db.set_last_message(message.from_user.id, message.message_id + 1)
 
 
 @r.message(Command("update"))
@@ -58,7 +57,6 @@ async def perform_update(message: Message) -> None:
 @r.message(Command("change_zodiac"))
 async def change_zodiac(message: Message) -> None:
     await message.answer("Выберите новый знак зодиака:", reply_markup=kb.choose_zodiac())
-    await db.set_last_message(message.from_user.id, message.message_id + 1)
 
 
 @r.message(Command("clear_history"))
@@ -66,19 +64,17 @@ async def clear_history(message: Message) -> None:
     user_id = message.from_user.id
     bot = message.bot
 
-    first = await db.get_first_message(user_id)
-    last = await db.get_last_message(user_id)
+    first_message = await db.get_first_message(user_id)
     last_zodiac = await db.get_last_zodiac_msg(user_id)
 
-    for idx in range(first, last + 2):
+    for idx in range(first_message, message.message_id + 1):
         if idx != last_zodiac:
             try:
                 await bot.delete_message(message.chat.id, idx)
             except Exception as e:
                 logging.info(f"Не удалось удалить сообщение #{idx}: {e}")
 
-    await db.set_first_message(user_id, message.message_id + 1)
-    await db.set_last_message(user_id, message.message_id + 1)
+    await db.set_first_message(user_id, last_zodiac)
 
 
 @r.callback_query(lambda call: call.data == "renew_horoscope")
@@ -106,4 +102,3 @@ async def zodiac_info(message: Message) -> None:
 @r.message()
 async def answer(message: Message) -> None:
     await message.answer("Извините, я не понял")
-    await db.set_last_message(message.from_user.id, message.message_id + 1)

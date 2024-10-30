@@ -71,7 +71,6 @@ async def send_horoscope(user_id: int) -> None:
     message_id = message.message_id
 
     await db.set_last_horoscope_msg(user_id, message_id)
-    await db.set_last_message(user_id, message_id)
     await db.set_sent_today(user_id)
 
 

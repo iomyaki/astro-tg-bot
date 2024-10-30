@@ -8,7 +8,7 @@ with sq.connect("app/astro_bot.db") as db:
 async def db_start() -> None:
     cur.execute("CREATE TABLE IF NOT EXISTS users(user_id INTEGER NOT NULL PRIMARY KEY, zodiac TEXT, "
                 "sent_today INTEGER, last_zodiac_msg INTEGER, last_horoscope_msg INTEGER, last_prediction INTEGER, "
-                "first_message INTEGER, last_message INTEGER);")
+                "first_message INTEGER);")
     db.commit()
 
 
@@ -19,7 +19,7 @@ async def check_user(user_id: int) -> int:
 
 async def set_zodiac(user_id: int, sign: str) -> None:
     if not await check_user(user_id):
-        cur.execute(f"INSERT INTO users VALUES ({user_id}, '{sign}', 0, -1, -1, -1, 1, -1);")
+        cur.execute(f"INSERT INTO users VALUES ({user_id}, '{sign}', 0, -1, -1, -1, 1);")
     else:
         cur.execute(f"UPDATE users SET zodiac = '{sign}' WHERE user_id = {user_id};")
     db.commit()
@@ -40,16 +40,6 @@ async def set_first_message(user_id: int, ident: int) -> None:
 
 async def get_first_message(user_id: int) -> int:
     cur.execute(f"SELECT first_message FROM users WHERE user_id = {user_id}")
-    return int(cur.fetchone()[0])
-
-
-async def set_last_message(user_id: int, ident: int) -> None:
-    cur.execute(f"UPDATE users SET last_message = {ident} WHERE user_id = {user_id}")
-    db.commit()
-
-
-async def get_last_message(user_id: int) -> int:
-    cur.execute(f"SELECT last_message FROM users WHERE user_id = {user_id}")
     return int(cur.fetchone()[0])
 
 
