@@ -52,9 +52,8 @@ async def perform_update(message: Message) -> None:
 
     if await db.get_sent_today(user_id):
         await bot.delete_message(chat_id=message.chat.id, message_id=await db.get_last_horoscope_msg(user_id))
-    last_horoscope_id = await send_horoscope(user_id)
+    await send_horoscope(user_id)
 
-    await db.set_last_horoscope_msg(user_id, last_horoscope_id)
     await db.set_sent_today(user_id)
     await db.set_last_message(message.from_user.id, message.message_id)
 
@@ -91,9 +90,8 @@ async def renew_horoscope(call: CallbackQuery):
     user_id = call.from_user.id
 
     await bot.delete_message(chat_id=call.message.chat.id, message_id=await db.get_last_horoscope_msg(user_id))
-    last_horoscope_id = await send_horoscope(user_id)
+    await send_horoscope(user_id)
 
-    await db.set_last_horoscope_msg(user_id, last_horoscope_id)
     await db.set_sent_today(user_id)
     await db.set_last_message(call.from_user.id, call.message_id)
 
