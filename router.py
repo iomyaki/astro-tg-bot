@@ -106,10 +106,9 @@ async def zodiac_info(message: Message) -> None:
     user_id = message.from_user.id
     await db.set_zodiac(user_id, latin_name)
     last_zodiac_message = await message.answer(f"Информация о{russian_name}", reply_markup=ReplyKeyboardRemove())
-    last_horoscope_message_id = await send_horoscope(user_id)
+    await send_horoscope(user_id)
 
     await db.set_last_zodiac_msg(user_id, last_zodiac_message.message_id)
-    await db.set_last_horoscope_msg(user_id, last_horoscope_message_id)
     await db.set_sent_today(user_id)
     await db.set_last_message(message.from_user.id, message.message_id)
 

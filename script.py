@@ -48,7 +48,7 @@ async def set_bot_commands() -> None:
     await bot.set_my_commands(commands)
 
 
-async def send_horoscope(user_id: int) -> int:
+async def send_horoscope(user_id: int) -> None:
     last_prediction_id = await db.get_last_prediction(user_id)
 
     n = len(predictions)
@@ -69,9 +69,10 @@ async def send_horoscope(user_id: int) -> int:
         caption=caption,
         reply_markup=kb.renew(),
     )
+    message_id = message.message_id
 
-    await db.set_last_message(message.from_user.id, message.message_id)
-    return message.message_id
+    await db.set_last_horoscope_msg(user_id, message_id)
+    await db.set_last_message(user_id, message_id)
 
 
 async def daily_horoscope() -> None:
