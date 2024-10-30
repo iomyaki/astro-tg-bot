@@ -21,6 +21,7 @@ predictions = [
     "звёзды велят всё успеть до дедлайна",
     "точно нужно выйти потрогать траву",
 ]
+n = len(predictions)
 zodiac_dative = {
     "aquarius": "водолеям",
     "pisces": "рыбам",
@@ -51,16 +52,14 @@ async def set_bot_commands() -> None:
 async def send_horoscope(user_id: int) -> None:
     last_prediction_id = await db.get_last_prediction(user_id)
 
-    n = len(predictions)
     new_prediction_id = random.choice(range(n))
     while new_prediction_id == last_prediction_id:
         new_prediction_id = random.choice(range(n))
-
-    prediction = predictions[new_prediction_id]
     await db.set_last_prediction(user_id, new_prediction_id)
 
-    sign_dative = zodiac_dative[await db.get_zodiac(user_id)]
     today_date = datetime.today().strftime('%d.%m.%Y')
+    sign_dative = zodiac_dative[await db.get_zodiac(user_id)]
+    prediction = predictions[new_prediction_id]
     caption = f"Сегодня, {html.bold(today_date)}, {sign_dative} {prediction}"
 
     message = await bot.send_photo(
@@ -73,6 +72,7 @@ async def send_horoscope(user_id: int) -> None:
 
     await db.set_last_horoscope_msg(user_id, message_id)
     await db.set_last_message(user_id, message_id)
+    await db.set_sent_today(user_id)
 
 
 async def daily_horoscope() -> None:

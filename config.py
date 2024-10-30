@@ -1,2 +1,2 @@
-BOT_TOKEN = "Sample Text"
+BOT_TOKEN = "Sample Token"
 TIMEZONE = "Europe/Moscow"

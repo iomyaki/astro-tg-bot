@@ -42,7 +42,7 @@ zodiac_ru = {
 @r.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await message.answer(f"Приветствую! Выберите свой знак зодиака:", reply_markup=kb.choose_zodiac())
-    await db.set_last_message(message.from_user.id, message.message_id)
+    await db.set_last_message(message.from_user.id, message.message_id + 1)
 
 
 @r.message(Command("update"))
@@ -54,14 +54,11 @@ async def perform_update(message: Message) -> None:
         await bot.delete_message(chat_id=message.chat.id, message_id=await db.get_last_horoscope_msg(user_id))
     await send_horoscope(user_id)
 
-    await db.set_sent_today(user_id)
-    await db.set_last_message(message.from_user.id, message.message_id)
-
 
 @r.message(Command("change_zodiac"))
 async def change_zodiac(message: Message) -> None:
     await message.answer("Выберите новый знак зодиака:", reply_markup=kb.choose_zodiac())
-    await db.set_last_message(message.from_user.id, message.message_id)
+    await db.set_last_message(message.from_user.id, message.message_id + 1)
 
 
 @r.message(Command("clear_history"))
@@ -71,10 +68,10 @@ async def clear_history(message: Message) -> None:
 
     first = await db.get_first_message(user_id)
     last = await db.get_last_message(user_id)
-    saved = await db.get_last_zodiac_msg(user_id)
+    last_zodiac = await db.get_last_zodiac_msg(user_id)
 
-    for idx in range(first, last + 3):
-        if idx != saved:
+    for idx in range(first, last + 2):
+        if idx != last_zodiac:
             try:
                 await bot.delete_message(message.chat.id, idx)
             except Exception as e:
@@ -85,15 +82,12 @@ async def clear_history(message: Message) -> None:
 
 
 @r.callback_query(lambda call: call.data == "renew_horoscope")
-async def renew_horoscope(call: CallbackQuery):
+async def renew_horoscope(call: CallbackQuery) -> None:
     bot = call.bot
     user_id = call.from_user.id
 
     await bot.delete_message(chat_id=call.message.chat.id, message_id=await db.get_last_horoscope_msg(user_id))
     await send_horoscope(user_id)
-
-    await db.set_sent_today(user_id)
-    await db.set_last_message(call.from_user.id, call.message_id)
 
 
 @r.message(lambda message: message.text in {"♒", "♓", "♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑"})
@@ -107,11 +101,9 @@ async def zodiac_info(message: Message) -> None:
     await send_horoscope(user_id)
 
     await db.set_last_zodiac_msg(user_id, last_zodiac_message.message_id)
-    await db.set_sent_today(user_id)
-    await db.set_last_message(message.from_user.id, message.message_id)
 
 
 @r.message()
-async def answer(message: Message):
+async def answer(message: Message) -> None:
     await message.answer("Извините, я не понял")
-    await db.set_last_message(message.from_user.id, message.message_id)
+    await db.set_last_message(message.from_user.id, message.message_id + 1)
