@@ -44,7 +44,7 @@ async def main() -> None:
 
     dp.startup.register(on_startup)
     await script.set_bot_commands()
-    await dp.start_polling(bot, skip_updates=False, on_shutdown=on_shutdown)
+    await dp.start_polling(bot, on_shutdown=on_shutdown)
 
 
 if __name__ == "__main__":
